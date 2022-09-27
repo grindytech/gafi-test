@@ -1,1 +1,7 @@
-console.log("hello the world");
+
+const {write_wallets} = require('./wallet/write_wallet');
+
+
+write_wallets(1000);
+
+

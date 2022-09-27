@@ -8,5 +8,9 @@
     "test": ""
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@polkadot/util-crypto": "^10.1.9",
+    "dotenv": "^16.0.2"
+  }
 }
