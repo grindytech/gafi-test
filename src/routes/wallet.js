@@ -4,5 +4,6 @@ const wallet_controller = require("../controller/wallet");
 
 router.route("/create").get(wallet_controller.create);
 router.route("/funded").get(wallet_controller.funded);
+router.route("/map").get(wallet_controller.map);
 
 module.exports = router;
