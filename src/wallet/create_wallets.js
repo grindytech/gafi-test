@@ -2,8 +2,8 @@ const { mnemonicGenerate } = require('@polkadot/util-crypto');
 const fs = require('fs');
 require('dotenv').config();
 
-function write_wallets(count) {
-    var logger = fs.createWriteStream(process.env.WALLETS_PATH, {
+function create_wallets(count) {
+    var logger = fs.createWriteStream(process.env.NEW_WALLETS_PATH, {
         flags: 'a' // 'a' means appending (old data will be preserved)
     });
     
@@ -20,5 +20,5 @@ function write_wallets(count) {
 }
 
 module.exports = {
-    write_wallets
+    create_wallets
 }
