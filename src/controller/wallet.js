@@ -5,10 +5,7 @@ const {create_wallets} = require('../wallet/create_wallets');
 
 module.exports = {
   create: async function (req, res) {
-    console.log("create");
-
     let count = req.query.count;
-    console.log("count: ", count);
     create_wallets(count);
     res.status(200);
     res.json("wallets created");

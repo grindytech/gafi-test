@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@openzeppelin/contracts": "^4.7.3",
     "@polkadot/api": "^9.4.2",
     "@polkadot/keyring": "^10.1.9",
     "@polkadot/util-crypto": "^10.1.9",

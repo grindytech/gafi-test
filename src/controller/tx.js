@@ -3,6 +3,6 @@ dotenv.config();
 
 module.exports = {
   spam: async function (req, res) {
-
+    
   },
 }
