@@ -5,12 +5,18 @@
   "main": "app.js",
   "scripts": {
     "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
     "test": ""
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@polkadot/api": "^9.4.2",
+    "@polkadot/keyring": "^10.1.9",
     "@polkadot/util-crypto": "^10.1.9",
-    "dotenv": "^16.0.2"
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.2",
+    "express": "^4.18.1",
+    "nodemon": "^2.0.20"
   }
 }
