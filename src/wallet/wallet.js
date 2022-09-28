@@ -27,7 +27,7 @@ async function proof_address_mapping(api, account, evm_account) {
             false
         );
         await txExecute.signAndSend(account);
-        console.log(`SUCCESS: mapped ${account.address} <> ${evm_acc.address}`);
+        console.log(`SUCCESS: mapped ${account.address} <> ${evm_account.address}`);
     } else {
         console.log(`FAIL: already mapped ${account.address}`);
     }
@@ -67,6 +67,7 @@ async function map_address(api, seed) {
 
 
 module.exports = {
-    map_addreses
+    map_addreses,
+    map_address
 }
 

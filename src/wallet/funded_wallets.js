@@ -40,7 +40,14 @@ function get_wallet(seed) {
 }
 
 function get_evm_acc(seed) {
-    let mnemonicWallet = ethers.Wallet.fromMnemonic(seed);
+    let pure_seed = seed;
+    
+    let name_index = seed.indexOf("//");
+    if (name_index != -1) {
+        pure_seed = seed.slice(0, name_index);
+    }
+
+    let mnemonicWallet = ethers.Wallet.fromMnemonic(pure_seed);
     return mnemonicWallet;
 }
 
