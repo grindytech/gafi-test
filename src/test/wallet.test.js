@@ -1,7 +1,7 @@
 var chai = require('chai');
 var expect = chai.expect;
 
-const { get_evm_acc, get_seeds, get_wallets } = require("../wallet/funded_wallets");
+const { get_evm_acc, get_seeds, get_wallets, get_wallet } = require("../wallet/funded_wallets");
 
 describe('Whitelist', async () => {
     beforeEach((done) => {
@@ -18,16 +18,17 @@ describe('Whitelist', async () => {
     })
 
 
-    it('get seeds work', async () => {
-        let seeds = await get_seeds();
-        expect(seeds.length)
-            .to.equal(1000);
+    it('get wallet work', async () => {
+        let seed = "economy pudding brain review limb dragon bachelor guess employ afraid script boss";
+        let pair = await get_wallet(seed);
+        expect(pair.address)
+            .to.equal("5DJRN5cJ3kFL4EsgoeiUd66JQJDxQ2uaDVoJQTYXGrmjMr6i");
     })
 
     it('get wallets work', async () => {
-        let seeds = await get_seeds();
-        let wallets = await get_wallets(seeds);
-        expect(wallets.length)
-            .to.equal(1000);
+        let seeds = ["economy pudding brain review limb dragon bachelor guess employ afraid script boss"];
+        let pairs = await get_wallets(seeds);
+        expect(pairs[0].address)
+            .to.equal("5DJRN5cJ3kFL4EsgoeiUd66JQJDxQ2uaDVoJQTYXGrmjMr6i");
     })
 })

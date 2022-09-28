@@ -25,13 +25,18 @@ async function get_seeds() {
 }
 
 function get_wallets(seeds) {
-    const keyring = new Keyring({ type: 'sr25519', ss58Format: 42 });
     let key_pairs = [];
-    for (const seed in seeds) {
-        const pair = keyring.addFromUri(seed, { name: 'key pair' }, 'sr25519');
+    for (let i = 0; i < seeds.length; i++) {
+        const pair = get_wallet(seeds[i]);
         key_pairs.push(pair);
     }
     return key_pairs;
+}
+
+function get_wallet(seed) {
+    const keyring = new Keyring({ type: 'sr25519', ss58Format: 42 });
+    const pair = keyring.addFromUri(seed, { name: 'key pair' }, 'sr25519');
+    return pair;
 }
 
 function get_evm_acc(seed) {
@@ -47,16 +52,18 @@ function get_root_wallet() {
 
 async function funded_wallets() {
 
-    let seeds = get_seeds();
+    let seeds = await get_seeds();
+
     let key_pairs = get_wallets(seeds);
 
     let root = get_root_wallet();
+
+    console.log("root: ", root.address);
 
     let provider = new WsProvider(process.env.WSS);
     const api = await ApiPromise.create({ provider });
 
     for (const key of key_pairs) {
-
         const txExecute = api.tx.balances.transfer(
             key.address,
             "10000000000000000000000"
@@ -71,5 +78,6 @@ module.exports = {
     funded_wallets,
     get_wallets,
     get_seeds,
-    get_evm_acc
+    get_evm_acc,
+    get_wallet,
 }

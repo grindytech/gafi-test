@@ -4,7 +4,7 @@ require('dotenv').config();
 
 function create_wallets(count) {
     var logger = fs.createWriteStream(process.env.NEW_WALLETS_PATH, {
-        flags: 'a' // 'a' means appending (old data will be preserved)
+        flags: 'w' // 'a' means appending (old data will be preserved)
     });
     
     for (let i = 0; i < count; i++) {
