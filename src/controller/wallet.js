@@ -6,6 +6,7 @@ const { map_addreses } = require("../wallet/wallet");
 
 module.exports = {
   create: async function (req, res) {
+    console.log("start creating wallets");
     let count = req.query.count;
     create_wallets(count);
     res.status(200);
@@ -13,19 +14,16 @@ module.exports = {
   },
 
   funded: async function (req, res) {
+    console.log("start funding wallets");
     funded_wallets();
     res.status(200);
     res.json("Funded wallets");
   },
 
   map: async function (req, res) {
-    map_addreses().then(() => {
-      res.status(200);
-      res.json("proof address mapping");
-    }
-    ).catch(err => {
-      res.status(400);
-      res.send(err);
-    });
+    console.log("start mapping wallets");
+    map_addreses();
+    res.status(200);
+    res.json("proof address mapping");
   }
 }

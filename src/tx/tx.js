@@ -36,14 +36,14 @@ async function create_token(web3, account, index = 0) {
     return sentTx;
 }
 
-async function create_tokens() {
+async function create_tokens(count) {
     let web3 = new Web3();
     web3.setProvider(new web3.providers.HttpProvider(process.env.RPC));
 
 
     let seeds = await get_seeds();
 
-    for (let i = 0; i < seeds.length; i++) {
+    for (let i = 0; i < seeds.length && i < count; i++) {
         let evm_acc = get_evm_acc(seeds[i]);
 
         create_token(web3, evm_acc, i);

@@ -57,6 +57,16 @@ function get_root_wallet() {
     return pair;
 }
 
+async function funded_wallet(api, root, address, index = 0) {
+    const txExecute = api.tx.balances.transfer(
+        address,
+        "10000000000000000000000"
+    );
+    await txExecute.signAndSend(root, { nonce: -1 });
+
+    console.log(`Index: ${index} - funded: ${address}`);
+}
+
 async function funded_wallets() {
 
     let seeds = await get_seeds();
@@ -70,14 +80,10 @@ async function funded_wallets() {
     let provider = new WsProvider(process.env.WSS);
     const api = await ApiPromise.create({ provider });
 
+    let index = 0;
     for (const key of key_pairs) {
-        const txExecute = api.tx.balances.transfer(
-            key.address,
-            "10000000000000000000000"
-        );
-        await txExecute.signAndSend(root, { nonce: -1 });
-
-        console.log("funded: ", key.address);
+        await funded_wallet(api, root, key.address, index);
+        index++;
     }
 }
 
