@@ -68,7 +68,6 @@ async function funded_wallet(api, root, address, index = 0) {
 }
 
 async function funded_wallets() {
-
     let seeds = await get_seeds();
 
     let key_pairs = get_wallets(seeds);
