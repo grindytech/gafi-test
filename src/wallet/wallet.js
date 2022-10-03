@@ -1,6 +1,4 @@
 
-
-
 const { mnemonicGenerate } = require('@polkadot/util-crypto');
 const fs = require('fs');
 const { Keyring } = require('@polkadot/keyring');

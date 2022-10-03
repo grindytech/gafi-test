@@ -4,6 +4,7 @@ const ADD_GAS_LIMIT = "10";
 const { BigNumber } = require('@ethersproject/bignumber');
 let GafiTokenABI = require('../../build/contracts/GafiToken.json');
 const { get_seeds, get_evm_acc } = require('../wallet/funded_wallets');
+const { ApiPromise, WsProvider } = require('@polkadot/api');
 
 async function add_additional_gas(contract, address) {
     const gas_limit = await contract.estimateGas({ from: address });
@@ -40,7 +41,6 @@ async function create_tokens(count) {
     let web3 = new Web3();
     web3.setProvider(new web3.providers.HttpProvider(process.env.RPC));
 
-
     let seeds = await get_seeds();
 
     for (let i = 0; i < seeds.length && i < count; i++) {
@@ -50,7 +50,33 @@ async function create_tokens(count) {
     }
 }
 
+async function get_tps(count) {
+
+    let provider = new WsProvider(process.env.WSS);
+    let api = await ApiPromise.create({ provider });
+    
+    let block_number = (await api.query.system.number()).toHuman();
+
+    let total_txs = 0;
+    let total_block_length = 0;
+    for(let i = 0; i < count; i++) {
+        let block = block_number - i;
+        const blockHash = await api.rpc.chain.getBlockHash(block);
+        const signedBlock = await api.rpc.chain.getBlock(blockHash);
+
+        console.log(`block number: ${block} - ${signedBlock.block.extrinsics.length}`);
+        console.log(`block length: ${signedBlock.block.encodedLength}`)
+        total_txs += signedBlock.block.extrinsics.length;
+        total_block_length += signedBlock.block.encodedLength;
+    }
+    
+    console.log("Total TXs: ", total_txs);
+    console.log("Total Block Length: ", total_block_length);
+
+}
+
 module.exports = {
     create_token,
-    create_tokens
+    create_tokens,
+    get_tps
 }
