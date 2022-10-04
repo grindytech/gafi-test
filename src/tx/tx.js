@@ -7,11 +7,11 @@ const { get_seeds, get_evm_acc } = require('../wallet/funded_wallets');
 const { ApiPromise, WsProvider } = require('@polkadot/api');
 const { BN } = require('@polkadot/util');
 
-async function add_additional_gas(contract, address) {
+async function add_additional_gas(contract, address, add_gas_limit) {
     const gas_limit = await contract.estimateGas({ from: address });
 
     const additional_gas = BigNumber.from(gas_limit.toString())
-        .mul(BigNumber.from(ADD_GAS_LIMIT)).div(BigNumber.from("100"));
+        .mul(BigNumber.from(add_gas_limit)).div(BigNumber.from("100"));
     return BigNumber.from(gas_limit.toString()).add(additional_gas).toString();
 }
 
@@ -27,7 +27,7 @@ async function create_token(web3, account, index = 0) {
     const nonce = await web3.eth.getTransactionCount(account.address, "pending");
     const options = {
         data: contract_data.encodeABI(),
-        gas: await add_additional_gas(contract_data, account.address),
+        gas: await add_additional_gas(contract_data, account.address, "0"),
         gasPrice: await web3.eth.getGasPrice(),
         nonce,
     };
@@ -41,8 +41,52 @@ async function create_token(web3, account, index = 0) {
     let after_balance = await web3.eth.getBalance(account.address);
 
     let fee = web3.utils.fromWei(BigNumber.from(before_balance).sub(BigNumber.from(after_balance)).toString(), "ether");
-    console.log(`Index: ${index} - Fee: ${fee}`);
-    return sentTx;
+    console.log(`Create: ${index} - Fee: ${fee} - Gas used: ${sentTx.gasUsed}`);
+
+    return sentTx.contractAddress;
+}
+
+async function transfer_token(count) {
+    let web3 = new Web3();
+    web3.setProvider(new web3.providers.HttpProvider(process.env.RPC));
+    let seeds = await get_seeds();
+
+    let tokens = [];
+
+    for (let i = 0; i < seeds.length && i < count; i++) {
+        let evm_acc = get_evm_acc(seeds[i]);
+
+        let token_address = await create_token(web3, evm_acc, i);
+        tokens.push(token_address);
+    }
+
+    for (let i = 0; i < seeds.length && i < count; i++) {
+        let evm_acc = get_evm_acc(seeds[i]);
+        await transfer_erc20_token(web3, evm_acc, tokens[i], i);
+    }
+}
+
+async function transfer_erc20_token(web3, account, token, index) {
+    const erc20_contract = new web3.eth.Contract(GafiTokenABI.abi, token);
+    const contract = await erc20_contract.methods.transfer("0x000000000000000000000000000000000000dEaD", "10000000000000000000");
+
+    let gas_limit = await add_additional_gas(contract, account.address, "0");
+
+    const options = {
+        to: token,
+        data: contract.encodeABI(),
+        gas: gas_limit,
+        gasPrice: await web3.eth.getGasPrice()
+    };
+
+    let before_balance = await web3.eth.getBalance(account.address);
+
+    const signed = await web3.eth.accounts.signTransaction(options, account.privateKey);
+   const sentTx = await web3.eth.sendSignedTransaction(signed.raw || signed.rawTransaction);
+
+    let after_balance = await web3.eth.getBalance(account.address);
+    let fee = web3.utils.fromWei(BigNumber.from(before_balance).sub(BigNumber.from(after_balance)).toString(), "ether");
+    console.log(`Transfer: ${index} - Fee: ${fee} - Gas used: ${sentTx.gasUsed}`);
 }
 
 async function create_tokens(count) {
@@ -105,5 +149,6 @@ module.exports = {
     create_token,
     create_tokens,
     get_tps,
-    get_fee_detail
+    get_fee_detail,
+    transfer_token
 }

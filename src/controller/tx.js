@@ -1,14 +1,22 @@
 const dotenv = require("dotenv");
 dotenv.config();
 
-const {create_tokens, get_tps, get_fee_detail} = require('../tx/tx');
+const { create_tokens, get_tps,
+  get_fee_detail, transfer_token } = require('../tx/tx');
 
 module.exports = {
-  spam: async function (req, res) {
-      let count = req.query.count;
-      create_tokens(count);
-      res.status(200);
-      res.json("created tokens");
+  create_token: async function (req, res) {
+    let count = req.query.count;
+    create_tokens(count);
+    res.status(200);
+    res.json("created tokens");
+  },
+
+  transfer_token: async function (req, res) {
+    let count = req.query.count;
+    transfer_token(count);
+    res.status(200);
+    res.json("transfered tokens");
   },
 
   tps: async function (req, res) {
