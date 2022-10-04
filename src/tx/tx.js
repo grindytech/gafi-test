@@ -5,6 +5,7 @@ const { BigNumber } = require('@ethersproject/bignumber');
 let GafiTokenABI = require('../../build/contracts/GafiToken.json');
 const { get_seeds, get_evm_acc } = require('../wallet/funded_wallets');
 const { ApiPromise, WsProvider } = require('@polkadot/api');
+const { BN } = require('@polkadot/util');
 
 async function add_additional_gas(contract, address) {
     const gas_limit = await contract.estimateGas({ from: address });
@@ -30,10 +31,17 @@ async function create_token(web3, account, index = 0) {
         gasPrice: await web3.eth.getGasPrice(),
         nonce,
     };
+
+    let before_balance = await web3.eth.getBalance(account.address);
+
     const signed = await web3.eth.accounts.signTransaction(options, account.privateKey);
 
     const sentTx = await web3.eth.sendSignedTransaction(signed.raw || signed.rawTransaction);
-    console.log(`Index: ${index} - Tx: ${sentTx.transactionHash}`);
+
+    let after_balance = await web3.eth.getBalance(account.address);
+
+    let fee = web3.utils.fromWei(BigNumber.from(before_balance).sub(BigNumber.from(after_balance)).toString(), "ether");
+    console.log(`Index: ${index} - Fee: ${fee}`);
     return sentTx;
 }
 
@@ -54,12 +62,12 @@ async function get_tps(count) {
 
     let provider = new WsProvider(process.env.WSS);
     let api = await ApiPromise.create({ provider });
-    
+
     let block_number = (await api.query.system.number()).toHuman();
 
     let total_txs = 0;
     let total_block_length = 0;
-    for(let i = 0; i < count; i++) {
+    for (let i = 0; i < count; i++) {
         let block = block_number - i;
         const blockHash = await api.rpc.chain.getBlockHash(block);
         const signedBlock = await api.rpc.chain.getBlock(blockHash);
@@ -69,14 +77,33 @@ async function get_tps(count) {
         total_txs += signedBlock.block.extrinsics.length;
         total_block_length += signedBlock.block.encodedLength;
     }
-    
+
     console.log("Total TXs: ", total_txs);
     console.log("Total Block Length: ", total_block_length);
+}
 
+async function get_fee_detail(block) {
+    let provider = new WsProvider(process.env.WSS);
+    let api = await ApiPromise.create({ provider });
+
+    const blockHash = await api.rpc.chain.getBlockHash(block);
+    const signedBlock = await api.rpc.chain.getBlock(blockHash);
+
+    for (let i = 0; i < signedBlock.block.extrinsics.length; i++) {
+        let extrinsic = signedBlock.block.extrinsics[i];
+        console.log('extrinsic:', JSON.stringify(extrinsic.toHuman(), null, 2));
+
+        const queryFeeDetails = await api.rpc.payment.queryFeeDetails(extrinsic.toHex(), blockHash);
+        console.log('queryFeeDetails:', JSON.stringify(queryFeeDetails.toHuman(), null, 2));
+
+        const queryInfo = await api.rpc.payment.queryInfo(extrinsic.toHex(), blockHash);
+        console.log('queryInfo:', JSON.stringify(queryInfo.toHuman(), null, 2));
+    }
 }
 
 module.exports = {
     create_token,
     create_tokens,
-    get_tps
+    get_tps,
+    get_fee_detail
 }

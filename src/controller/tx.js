@@ -1,7 +1,7 @@
 const dotenv = require("dotenv");
 dotenv.config();
 
-const {create_tokens, get_tps} = require('../tx/tx');
+const {create_tokens, get_tps, get_fee_detail} = require('../tx/tx');
 
 module.exports = {
   spam: async function (req, res) {
@@ -18,5 +18,14 @@ module.exports = {
 
     res.status(200);
     res.json("tps");
-  }
+  },
+
+  fee: async function (req, res) {
+    let block = req.query.block;
+
+    get_fee_detail(block);
+
+    res.status(200);
+    res.json("get fee detail");
+  },
 }

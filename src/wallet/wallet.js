@@ -1,10 +1,8 @@
 
-const { mnemonicGenerate } = require('@polkadot/util-crypto');
-const fs = require('fs');
 const { Keyring } = require('@polkadot/keyring');
 const { ApiPromise, WsProvider } = require('@polkadot/api');
-const { get_wallets, get_seeds, get_evm_acc } = require('./funded_wallets');
-const { BN_MILLION, BN, u8aToHex } = require('@polkadot/util');
+const { get_seeds, get_evm_acc } = require('./funded_wallets');
+const { u8aToHex } = require('@polkadot/util');
 
 async function proof_address_mapping(api, account, evm_account) {
 
@@ -63,9 +61,42 @@ async function map_address(api, seed, index = 0) {
     console.log("count: ", index);
 }
 
+async function join_pool(pool_id) {
+    let provider = new WsProvider(process.env.WSS);
+    const api = await ApiPromise.create({ provider });
+    const keyring = new Keyring({ type: 'sr25519', ss58Format: 42 });
+
+    let seeds = await get_seeds();
+
+    for (let i = 0; i < seeds.length; i++) {
+        let acc = keyring.addFromUri(seeds[i], { name: 'key pair' }, 'sr25519');
+        const txExecute = api.tx.pool.join(
+            pool_id
+        );
+        await txExecute.signAndSend(acc);
+        console.log(`joined: ${i}`)
+    }
+}
+
+async function leave_pool() {
+    let provider = new WsProvider(process.env.WSS);
+    const api = await ApiPromise.create({ provider });
+    const keyring = new Keyring({ type: 'sr25519', ss58Format: 42 });
+
+    let seeds = await get_seeds();
+
+    for (let i = 0; i < seeds.length; i++) {
+        let acc = keyring.addFromUri(seeds[i], { name: 'key pair' }, 'sr25519');
+        const txExecute = api.tx.pool.leaveAll();
+        await txExecute.signAndSend(acc);
+        console.log(`leaved: ${i}`)
+    }
+}
 
 module.exports = {
     map_addreses,
-    map_address
+    map_address,
+    join_pool,
+    leave_pool
 }
 
