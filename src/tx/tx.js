@@ -145,10 +145,54 @@ async function get_fee_detail(block) {
     }
 }
 
+async function approve_erc20_token(web3, account, token, index) {
+    const erc20_contract = new web3.eth.Contract(GafiTokenABI.abi, token);
+    const contract = await erc20_contract.methods.approve("0x000000000000000000000000000000000000dEaD", "10000000000000000000");
+
+    let gas_limit = await add_additional_gas(contract, account.address, "0");
+
+    const options = {
+        to: token,
+        data: contract.encodeABI(),
+        gas: gas_limit,
+        gasPrice: await web3.eth.getGasPrice()
+    };
+
+    let before_balance = await web3.eth.getBalance(account.address);
+
+    const signed = await web3.eth.accounts.signTransaction(options, account.privateKey);
+   const sentTx = await web3.eth.sendSignedTransaction(signed.raw || signed.rawTransaction);
+
+    let after_balance = await web3.eth.getBalance(account.address);
+    let fee = web3.utils.fromWei(BigNumber.from(before_balance).sub(BigNumber.from(after_balance)).toString(), "ether");
+    console.log(`Approved: ${index} - Fee: ${fee} - Gas used: ${sentTx.gasUsed}`);
+}
+
+async function approve_token(count) {
+    let web3 = new Web3();
+    web3.setProvider(new web3.providers.HttpProvider(process.env.RPC));
+    let seeds = await get_seeds();
+
+    let tokens = [];
+
+    for (let i = 0; i < seeds.length && i < count; i++) {
+        let evm_acc = get_evm_acc(seeds[i]);
+
+        let token_address = await create_token(web3, evm_acc, i);
+        tokens.push(token_address);
+    }
+
+    for (let i = 0; i < seeds.length && i < count; i++) {
+        let evm_acc = get_evm_acc(seeds[i]);
+        await approve_erc20_token(web3, evm_acc, tokens[i], i);
+    }
+}
+
 module.exports = {
     create_token,
     create_tokens,
     get_tps,
     get_fee_detail,
-    transfer_token
+    transfer_token,
+    approve_token,
 }

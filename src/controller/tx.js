@@ -2,7 +2,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const { create_tokens, get_tps,
-  get_fee_detail, transfer_token } = require('../tx/tx');
+  get_fee_detail, transfer_token, approve_token } = require('../tx/tx');
 
 module.exports = {
   create_token: async function (req, res) {
@@ -17,6 +17,13 @@ module.exports = {
     transfer_token(count);
     res.status(200);
     res.json("transfered tokens");
+  },
+
+  approve_token: async function (req, res) {
+    let count = req.query.count;
+    approve_token(count);
+    res.status(200);
+    res.json("approved tokens");
   },
 
   tps: async function (req, res) {
