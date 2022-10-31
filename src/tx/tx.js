@@ -105,7 +105,7 @@ async function get_tps(count = 100) {
     let provider = new WsProvider(process.env.WSS);
     let api = await ApiPromise.create({ provider });
 
-    let block_number = (await api.query.system.number()).toHuman();
+    let block_number = Number((await api.query.system.number()).toString());
 
     let total_txs = 0;
     let total_block_length = 0;
