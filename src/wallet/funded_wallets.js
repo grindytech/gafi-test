@@ -51,12 +51,6 @@ function get_evm_acc(seed) {
     return mnemonicWallet;
 }
 
-function get_root_wallet() {
-    const keyring = new Keyring({ type: 'sr25519', ss58Format: 42 });
-    const pair = keyring.addFromUri(process.env.ROOT, { name: 'key pair' }, 'sr25519');
-    return pair;
-}
-
 async function funded_wallet(api, root, address, index = 0) {
     const txExecute = api.tx.balances.transfer(
         address,
@@ -78,10 +72,6 @@ async function funded_wallets() {
     let seeds = await get_seeds();
 
     let key_pairs = get_wallets(seeds);
-
-    let root = get_root_wallet();
-
-    console.log("root: ", root.address);
 
     let provider = new WsProvider(process.env.WSS);
     const api = await ApiPromise.create({ provider });

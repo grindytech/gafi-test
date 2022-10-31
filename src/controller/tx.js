@@ -29,10 +29,10 @@ module.exports = {
   tps: async function (req, res) {
     let count = req.query.count;
 
-    get_tps(count);
-
+    let max_tx = await get_tps(count);
+    let max_tps = Math.ceil(max_tx) / 12;
     res.status(200);
-    res.json("tps");
+    res.json({TPS: max_tps});
   },
 
   fee: async function (req, res) {

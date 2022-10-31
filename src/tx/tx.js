@@ -100,7 +100,7 @@ async function create_tokens(count) {
     }
 }
 
-async function get_tps(count) {
+async function get_tps(count = 100) {
 
     let provider = new WsProvider(process.env.WSS);
     let api = await ApiPromise.create({ provider });
@@ -109,6 +109,7 @@ async function get_tps(count) {
 
     let total_txs = 0;
     let total_block_length = 0;
+    let max_tx = 0;
     for (let i = 0; i < count; i++) {
         let block = block_number - i;
         const blockHash = await api.rpc.chain.getBlockHash(block);
@@ -116,12 +117,19 @@ async function get_tps(count) {
 
         console.log(`block number: ${block} - ${signedBlock.block.extrinsics.length}`);
         console.log(`block length: ${signedBlock.block.encodedLength}`)
-        total_txs += signedBlock.block.extrinsics.length;
+        
+        let tx_num = signedBlock.block.extrinsics.length;
+
+        if (tx_num > max_tx) {
+            max_tx = tx_num;
+        }
+        total_txs += tx_num;
         total_block_length += signedBlock.block.encodedLength;
     }
 
     console.log("Total TXs: ", total_txs);
     console.log("Total Block Length: ", total_block_length);
+    return max_tx;
 }
 
 async function get_fee_detail(block) {
