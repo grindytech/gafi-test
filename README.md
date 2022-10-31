@@ -81,5 +81,19 @@ successResponse: "created tokens"
 
 
 5. Get TPS (Transaction Per Second)
+```
+url: /tx/tps
 
+example: localhost:5000/tx/tps?count=100
 
+method: GET
+
+successResponse:
+{
+    "TPS": 48.75
+}
+
+```
+| RequestField  | Type | Description |
+| ------------- | ------------- | ------------- |
+| count | number  |  number of block |
