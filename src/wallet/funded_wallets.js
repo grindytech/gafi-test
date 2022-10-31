@@ -41,7 +41,7 @@ function get_wallet(seed) {
 
 function get_evm_acc(seed) {
     let pure_seed = seed;
-    
+
     let name_index = seed.indexOf("//");
     if (name_index != -1) {
         pure_seed = seed.slice(0, name_index);
@@ -67,6 +67,13 @@ async function funded_wallet(api, root, address, index = 0) {
     console.log(`Index: ${index} - funded: ${address}`);
 }
 
+async function get_faucet(api, sub_acc, index = 0) {
+    const txExecute = api.tx.faucet.faucet();
+    await txExecute.signAndSend(sub_acc);
+    console.log(`Index: ${index} - funded: ${sub_acc.address}`);
+}
+
+
 async function funded_wallets() {
     let seeds = await get_seeds();
 
@@ -81,7 +88,7 @@ async function funded_wallets() {
 
     let index = 0;
     for (const key of key_pairs) {
-        await funded_wallet(api, root, key.address, index);
+        await get_faucet(api, key, index);
         index++;
     }
 }

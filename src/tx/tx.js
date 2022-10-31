@@ -1,11 +1,9 @@
 let Web3 = require('web3');
 
-const ADD_GAS_LIMIT = "10";
 const { BigNumber } = require('@ethersproject/bignumber');
 let GafiTokenABI = require('../../build/contracts/GafiToken.json');
 const { get_seeds, get_evm_acc } = require('../wallet/funded_wallets');
 const { ApiPromise, WsProvider } = require('@polkadot/api');
-const { BN } = require('@polkadot/util');
 
 async function add_additional_gas(contract, address, add_gas_limit) {
     const gas_limit = await contract.estimateGas({ from: address });
@@ -131,6 +129,7 @@ async function get_fee_detail(block) {
     let api = await ApiPromise.create({ provider });
 
     const blockHash = await api.rpc.chain.getBlockHash(block);
+    console.log("blockHash: ", blockHash.toHuman());
     const signedBlock = await api.rpc.chain.getBlock(blockHash);
 
     for (let i = 0; i < signedBlock.block.extrinsics.length; i++) {
