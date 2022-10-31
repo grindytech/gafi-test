@@ -51,6 +51,7 @@ function get_evm_acc(seed) {
     return mnemonicWallet;
 }
 
+
 async function funded_wallet(api, root, address, index = 0) {
     const txExecute = api.tx.balances.transfer(
         address,
@@ -68,23 +69,7 @@ async function get_faucet(api, sub_acc, index = 0) {
 }
 
 
-async function funded_wallets() {
-    let seeds = await get_seeds();
-
-    let key_pairs = get_wallets(seeds);
-
-    let provider = new WsProvider(process.env.WSS);
-    const api = await ApiPromise.create({ provider });
-
-    let index = 0;
-    for (const key of key_pairs) {
-        await get_faucet(api, key, index);
-        index++;
-    }
-}
-
 module.exports = {
-    funded_wallets,
     get_wallets,
     get_seeds,
     get_evm_acc,

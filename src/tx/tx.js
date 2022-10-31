@@ -122,6 +122,7 @@ async function get_tps(count = 100) {
             max_tx = tx_number;
         }
         total_txs += tx_number;
+        total_txs += signedBlock.block.extrinsics.length;
         total_block_length += signedBlock.block.encodedLength;
     }
 
